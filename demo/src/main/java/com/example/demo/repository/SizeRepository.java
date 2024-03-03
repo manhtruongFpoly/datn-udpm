@@ -1,9 +1,9 @@
 package com.example.demo.repository;
 
-import com.example.demo.entity.SizeShoe;
+import com.example.demo.model.entity.SizeShoesEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface SizeRepository extends JpaRepository<SizeShoe,Long> {
+public interface SizeRepository extends JpaRepository<SizeShoesEntity,Long> {
 }
