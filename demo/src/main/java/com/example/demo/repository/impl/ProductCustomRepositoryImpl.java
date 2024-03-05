@@ -49,18 +49,20 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                 "join clors c on c.id = pc.color_id\n" +
                 "where ((1 = 1 \n" +
                 "    AND ( :brandId is null or p.brand_id = :brandId)\n" +
+                "    AND ( :code is null or p.code = :code)\n" +
                 "    AND ( :categoryId is null or p.category_id = :categoryId)\n" +
                 "    AND ( :keySearch is null or p.name like CONCAT('%', :keySearch, '%') OR p.code like CONCAT('%', :keySearch, '%'))\n" +
                 "))\n" +
                 "group by p.id");
 
         Query query = entityManager.createNativeQuery(sql.toString());
+        query.setParameter("code", productDto.getCode());
         query.setParameter("brandId", productDto.getBrandId());
         query.setParameter("categoryId", productDto.getCategoryId());
         query.setParameter("keySearch", productDto.getKeySearch());
 
         List<ProductDto> productDtoList = new ArrayList<>();
-        List<Object[]> objects = query.getResultList();
+            List<Object[]> objects = query.getResultList();
         if (ObjectUtils.isNotEmpty(objects)) {
             for (Object[] obj : objects) {
                 ProductDto productDto1 = new ProductDto();
