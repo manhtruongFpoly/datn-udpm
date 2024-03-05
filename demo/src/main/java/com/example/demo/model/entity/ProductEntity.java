@@ -35,5 +35,5 @@ public class ProductEntity {
     private StatusEnum status;
     private Long brandId;
     private Long categoryId;
-
+    private String imgList;
 }

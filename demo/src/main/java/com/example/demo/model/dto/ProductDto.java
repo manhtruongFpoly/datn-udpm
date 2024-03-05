@@ -2,6 +2,7 @@ package com.example.demo.model.dto;
 
 import com.example.demo.contants.StatusEnum;
 import lombok.Data;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.*;
 import java.time.LocalDateTime;
@@ -38,4 +39,5 @@ public class ProductDto {
     private String listSizes;
     private String listColors;
 
+    private List<MultipartFile> files;
 }

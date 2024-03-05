@@ -78,11 +78,9 @@ public class ProductController {
     }
 
     @PostMapping("/upload-list-images")
-    public ResponseEntity<?> create(
-            @RequestParam(required = false) List<MultipartFile> files
-    ) {
+    public ResponseEntity<?> create1(ProductDto productDto) {
         return ResponseEntity.ok(
-                DefaultResponse.success(cloudinaryService.uploadImages(files, FolderContants.PRODUCTS_IMAGES_FOLDER)));
+                DefaultResponse.success(cloudinaryService.uploadImages(productDto, FolderContants.PRODUCTS_IMAGES_FOLDER)));
     }
 
     @GetMapping("/get-one/{id}")
