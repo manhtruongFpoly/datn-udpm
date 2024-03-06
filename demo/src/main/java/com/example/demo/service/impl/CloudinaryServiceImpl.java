@@ -15,6 +15,7 @@ import lombok.Data;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -27,6 +28,7 @@ import java.util.stream.Stream;
 
 @Data
 @Service
+@Transactional
 public class CloudinaryServiceImpl {
 
     private final Cloudinary cloudinary;
