@@ -12,7 +12,7 @@ import java.util.List;
 public interface ProductService {
     DefaultResponse<ProductDto> viewDetailProduct(Long productId);
 
-    ServiceResult<Page<ProductDto>> searchLítProduct(SearchDTO<ProductDto> searchDTO);
+    ServiceResult<Page<ProductDto>> searchListProduct(SearchDTO<ProductDto> searchDTO);
 
     ProductDto create(ProductDto productDto);
 
