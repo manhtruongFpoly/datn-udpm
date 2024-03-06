@@ -38,6 +38,5 @@ public class ProductDto {
     private String keySearch;
     private String listSizes;
     private String listColors;
-
     private List<MultipartFile> files;
 }

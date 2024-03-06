@@ -35,7 +35,7 @@ public class ProductController {
 
     //todo:Lấy tất cả danh sách san phẩm"
     @PostMapping("/search")
-    public ResponseEntity<?> searchLítProduct(
+    public ResponseEntity<?> searchListProduct(
             @RequestBody SearchDTO<ProductDto> searchDTO
     ){
         return ResponseEntity.ok().body(productService.searchLítProduct(searchDTO));

@@ -8,7 +8,9 @@ import com.example.demo.model.dto.ProductDto;
 import com.example.demo.model.entity.ProductColor;
 import com.example.demo.model.entity.ProductEntity;
 import com.example.demo.model.entity.ProductSizeEntity;
+import com.example.demo.repository.ProductColorRepository;
 import com.example.demo.repository.ProductRepository;
+import com.example.demo.repository.ProductSizeRepository;
 import lombok.Data;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
@@ -32,6 +34,10 @@ public class CloudinaryServiceImpl {
     private final ModelMapper modelMapper;
 
     private final ProductRepository productRepository;
+
+    private final ProductColorRepository productColorRepository;
+
+    private final ProductSizeRepository productSizeRepository;
 
     public String uploadImage(MultipartFile file, String folder) {
         try {
@@ -71,8 +77,10 @@ public class CloudinaryServiceImpl {
         productRepository.save(productEntity);
 
         List<ProductColor> productColors = Stream.of(productDto.getListColors().split(",")).map(str -> new ProductColor(null, Long.valueOf(str), productEntity.getId())).collect(Collectors.toList());
+        productColorRepository.saveAll(productColors);
 
         List<ProductSizeEntity> productSizeEntities = Stream.of(productDto.getListSizes().split(",")).map(str -> new ProductSizeEntity(null, Long.valueOf(str), productEntity.getId())).collect(Collectors.toList());
+        productSizeRepository.saveAll(productSizeEntities);
 
         return urls;
     }
