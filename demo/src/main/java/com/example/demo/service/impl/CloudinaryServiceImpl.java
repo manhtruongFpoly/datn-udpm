@@ -76,10 +76,10 @@ public class CloudinaryServiceImpl {
         productEntity.setImgList(String.join(",", urls));
         productRepository.save(productEntity);
 
-        List<ProductColor> productColors = Stream.of(productDto.getListColors().split(",")).map(str -> new ProductColor(null, Long.valueOf(str), productEntity.getId())).collect(Collectors.toList());
+        List<ProductColor> productColors = Stream.of(productDto.getListColors().split(",")).map(str -> new ProductColor(null, productEntity.getId(), Long.valueOf(str))).collect(Collectors.toList());
         productColorRepository.saveAll(productColors);
 
-        List<ProductSizeEntity> productSizeEntities = Stream.of(productDto.getListSizes().split(",")).map(str -> new ProductSizeEntity(null, Long.valueOf(str), productEntity.getId())).collect(Collectors.toList());
+        List<ProductSizeEntity> productSizeEntities = Stream.of(productDto.getListSizes().split(",")).map(str -> new ProductSizeEntity(null, productEntity.getId(), Long.valueOf(str))).collect(Collectors.toList());
         productSizeRepository.saveAll(productSizeEntities);
 
         return urls;
