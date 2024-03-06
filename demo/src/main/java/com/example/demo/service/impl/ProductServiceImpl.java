@@ -43,7 +43,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ServiceResult<Page<ProductDto>> searchLítProduct(SearchDTO<ProductDto> searchDTO){
+    public ServiceResult<Page<ProductDto>> searchListProduct(SearchDTO<ProductDto> searchDTO){
 
         List<ProductDto> productDtoList = this.productCustomRepository.searchProductUser(searchDTO);
 

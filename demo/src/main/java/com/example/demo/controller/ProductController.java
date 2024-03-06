@@ -38,7 +38,7 @@ public class ProductController {
     public ResponseEntity<?> searchListProduct(
             @RequestBody SearchDTO<ProductDto> searchDTO
     ){
-        return ResponseEntity.ok().body(productService.searchLítProduct(searchDTO));
+        return ResponseEntity.ok().body(productService.searchListProduct(searchDTO));
     }
 
 
