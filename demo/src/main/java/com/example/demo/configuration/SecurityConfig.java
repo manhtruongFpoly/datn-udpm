@@ -55,10 +55,12 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             "/product/get",
             "/product/view-detail/*",
             "/api/v1/product/**",
+            "/api/v1/order/**"
     };
 
     private static final String[] AUTH_ADMIN= {
             "/api/v1/product/**",
+            "/api/v1/order/**"
     };
 
     // danh sách api các role được toàn quyền truy cập
@@ -70,6 +72,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             "/api/vnPay/**",
             "/api/**",
             "/api/v1/product/**",
+            "/api/v1/order/**",
     };
 
     private static final String[] AUTH_STAFF= {
@@ -77,6 +80,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             "/product/update-new/*",
             "/product/delete/*",
             "/api/v1/product/**",
+            "/api/v1/order/**",
     };
 
     private static final String[] AUTH_CUSTOMER= {
@@ -84,6 +88,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
             "/api/v1/product/**",
             "/api/**",
             "/api/v1/product/**",
+            "/api/v1/order/**"
     };
 
     @Override
