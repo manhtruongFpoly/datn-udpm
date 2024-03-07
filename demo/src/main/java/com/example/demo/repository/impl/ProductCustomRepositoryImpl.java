@@ -27,6 +27,34 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
     public List<ProductDto> searchProductUser(SearchDTO<ProductDto> searchDTO){
 
         ProductDto productDto = searchDTO.getData();
+//        StringBuilder sql = new StringBuilder("select \n" +
+//                "    p.id,\n" +
+//                "    p.brand_id,\n" +
+//                "    p.category_id,\n" +
+//                "    p.code,\n" +
+//                "    p.create_date,\n" +
+//                "    p.description,\n" +
+//                "    p.discount,\n" +
+//                "    p.name,\n" +
+//                "    p.price,\n" +
+//                "    p.price_new,\n" +
+//                "    p.quantity,\n" +
+//                "    p.update_date,\n" +
+//                "    group_concat( DISTINCT s.name) as listSizes,\n" +
+//                "    group_concat( DISTINCT c.name) as listColors\n" +
+//                "from products p \n" +
+//                "join product_sizes ps on p.id = ps.product_id\n" +
+//                "join sizes s on s.id = ps.size_id\n" +
+//                "join product_color pc on p.id = pc.product_id\n" +
+//                "join clors c on c.id = pc.color_id\n" +
+//                "where ((1 = 1 \n" +
+//                "    AND ( :brandId is null or p.brand_id = :brandId)\n" +
+//                "    AND ( :code is null or p.code = :code)\n" +
+//                "    AND ( :categoryId is null or p.category_id = :categoryId)\n" +
+//                "    AND ( :keySearch is null or p.name like CONCAT('%', :keySearch, '%') OR p.code like CONCAT('%', :keySearch, '%'))\n" +
+//                "))\n" +
+//                "group by p.id");
+
         StringBuilder sql = new StringBuilder("select \n" +
                 "    p.id,\n" +
                 "    p.brand_id,\n" +
@@ -40,8 +68,25 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                 "    p.price_new,\n" +
                 "    p.quantity,\n" +
                 "    p.update_date,\n" +
-                "    group_concat( DISTINCT s.name) as listSizes,\n" +
-                "    group_concat( DISTINCT c.name) as listColors\n" +
+                "    CONCAT(\n" +
+                "\t  '[',\n" +
+                "\t\tGROUP_CONCAT(\n" +
+                "\t\t\tDISTINCT CONCAT(\n" +
+                "\t\t\t'{\"key\":', s.id, ', \"value\":\"', s.name, '\"}'\n" +
+                "\t\t) ORDER BY s.id\n" +
+                "\t\t),\n" +
+                "\t']'\n" +
+                ") AS listSizes,\n" +
+                "    CONCAT(\n" +
+                "\t  '[',\n" +
+                "\t\tGROUP_CONCAT(\n" +
+                "\t\t\tDISTINCT CONCAT(\n" +
+                "\t\t\t'{\"key\":', c.id, ', \"value\":\"', c.name, '\"}'\n" +
+                "\t\t) ORDER BY c.id\n" +
+                "\t\t),\n" +
+                "\t']'\n" +
+                ") AS listColors,\n" +
+                "    p.img_list\n" +
                 "from products p \n" +
                 "join product_sizes ps on p.id = ps.product_id\n" +
                 "join sizes s on s.id = ps.size_id\n" +
@@ -80,6 +125,7 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                 productDto1.setUpdateDate(DataUtil.safeToLocalDateTime(obj[11]));
                 productDto1.setListSizes(DataUtil.safeToString(obj[12]));
                 productDto1.setListColors(DataUtil.safeToString(obj[13]));
+                productDto1.setImgList(DataUtil.safeToString(obj[14]));
                 productDtoList.add(productDto1);
             }
         }
@@ -120,7 +166,8 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                 "\t\t),\n" +
                 "\t']'\n" +
                 ") AS listColors,\n" +
-                "\t p.quantity \n" +
+                "\t p.quantity, \n" +
+                "\t p.img_list as imgList\n" +
                 "from products p \n" +
                 "join product_sizes ps on p.id = ps.product_id\n" +
                 "join sizes s on s.id = ps.size_id\n" +
@@ -143,6 +190,7 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                 .addScalar("listSizes", new StringType())
                 .addScalar("listColors", new StringType())
                 .addScalar("quantity", new IntegerType())
+                .addScalar("imgList", new StringType())
                 .setResultTransformer(Transformers.aliasToBean(ProductDto.class));
 
 

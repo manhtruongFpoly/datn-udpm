@@ -1,6 +1,7 @@
 package com.example.demo.service;
 
 import com.example.demo.model.dto.OrderDetailDto;
+import com.example.demo.model.dto.ProductDto;
 import com.example.demo.model.entity.OrderDetailEntity;
 import com.example.demo.payload.response.orderDetail.TotalPriceResponse;
 import org.springframework.data.domain.Page;
@@ -26,7 +27,7 @@ public interface OrderDetailService {
 //
 //    OrderDetailEntity update(Long id, OrderDetailDto orderDetailDto);
 //
-//    OrderDetailEntity addOrderDetail(Long idOrder, Long idProduct);
+    OrderDetailEntity addOrderDetail(ProductDto productDto);
 //    OrderDetailEntity updateQuantity(Long productId, Long orderId, Integer quantity);
 //
 //

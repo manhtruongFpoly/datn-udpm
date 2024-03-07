@@ -125,11 +125,8 @@ public class OrderServiceServiceImpl implements OrderService {
             // xoa cart
             cartRepository.deleteById(cartItem.getId());
         }
-//        sendEmailOrder(uDetailService.getEmail(), order);
-
         return order;
     }
-
     @Override
     public OrderEntity orderConfirmed(Long orderId) {
         CustomerDetailService uDetailService = CurrentUserUtils.getCurrentUserUtils();
@@ -147,8 +144,6 @@ public class OrderServiceServiceImpl implements OrderService {
         }
         return findByOrderId.orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND.value(), "Order id not found: " + orderId));
     }
-
-
     @Override
     public OrderEntity beingShipped(Long orderId) {
         Optional<OrderEntity> findByOrderId = orderRepository.findById(orderId);
@@ -219,8 +214,6 @@ public class OrderServiceServiceImpl implements OrderService {
     public List<OrderEntity> listStatus(OrderStatusEnum status) {
         return orderRepository.findAllByStatusEqualsAndOrderStatusOrderByIdDesc(status, OrderStatus.DONGIAO);
     }
-
-
     @Override
     public OrderStatusEnum[] status() {
         OrderStatusEnum[] status = OrderStatusEnum.values();
@@ -242,10 +235,6 @@ public class OrderServiceServiceImpl implements OrderService {
         }
         return optional.get();
     }
-
-//    public List<OrderEntity> listStatusPayment() {
-//        return orderRepository.findAllByPaymentStatusEquals(PaymentStatus.DANGSULY);
-//    }
 
     @Override
     public List<OrderEntity> listStatusPaymentPaid() {

@@ -39,4 +39,8 @@ public class ProductDto {
     private String listSizes;
     private String listColors;
     private List<MultipartFile> files;
+    private String sizeName;
+    private String colorName;
+    private Long idOrder;
+    private String imgList;
 }

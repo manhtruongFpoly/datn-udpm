@@ -3,6 +3,7 @@ package com.example.demo.service.impl;
 import com.example.demo.exception.BadRequestException;
 import com.example.demo.exception.NotFoundException;
 import com.example.demo.model.dto.OrderDetailDto;
+import com.example.demo.model.dto.ProductDto;
 import com.example.demo.model.entity.OrderDetailEntity;
 import com.example.demo.model.entity.OrderEntity;
 import com.example.demo.model.entity.ProductEntity;
@@ -37,7 +38,8 @@ public class OrderDetailServiceImpl implements OrderDetailService {
     private final OrderDetailRepository orderDetailRepository;
     private final ModelMapper modelMapper;
     private final ProductRepository productRepository;
-//    private final OrderRepository orderRepository;
+
+    private final OrderRepository orderRepository;
 //    private final ProductService productService;
 //
 //    @Override
@@ -111,48 +113,49 @@ public class OrderDetailServiceImpl implements OrderDetailService {
 //        return orderDetailRepository.save(orderDetailEntity);
 //    }
 //
-//    @Override
-//    public OrderDetailEntity addOrderDetail(Long idOrder, Long idProduct) {
-//        CustomerDetailService uDetailService = CurrentUserUtils.getCurrentUserUtils();
-//
-//        ProductEntity productEntity = productRepository.findById(idProduct)
-//                .orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND.value(), "product id not found: " + idProduct));
-//        OrderEntity orderEntity = orderRepository.findById(idOrder)
-//                .orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND.value(), "order id not found: " + idOrder));
-//
-////        List<ImageEntity> imageEntity = imagesRepository.getImageByProduct(idProduct);
-//
-//        OrderDetailEntity orderDetail = orderDetailRepository.findAllByOrderIdAndProductId(idOrder, idProduct);
-//
-//        if (productEntity.getQuantity() == 0)
-//            throw new BadRequestException("Sản phẩm này đã hết hàng");
-//
-//
-//        if (orderDetail == null) {
-//            orderDetail = new OrderDetailEntity();
-//            orderDetail.setProductPrice(productEntity.getPriceNew());
-//            orderDetail.setProductName(productEntity.getName());
-//            orderDetail.setQuantity(1);
-//            orderDetail.setTotal(orderDetail.getProductPrice() * 1);
-////            orderDetail.setImage(imageEntity.get(0).getLink());
-//            orderDetail.setProductId(idProduct);
-//
-//
-//            orderDetail.setUserId(uDetailService.getId());
-//            orderDetail.setOrderId(orderEntity.getId());
-//            System.out.println("vao kkk");
-//        } else {
-//            System.out.println("vao kk 56565k");
-//            orderDetail.setQuantity(orderDetail.getQuantity() + 1);
-//            if (productEntity.getQuantity() < orderDetail.getQuantity()) {
-//                throw new BadRequestException("Bạn chỉ có thể mua tối đa :" + productEntity.getQuantity() + " của sản phẩm này");
-//            } else {
-//                orderDetail.setTotal(orderDetail.getProductPrice() * orderDetail.getQuantity());
-//            }
-//        }
-//
-//        return orderDetailRepository.save(orderDetail);
-//    }
+    @Override
+    public OrderDetailEntity addOrderDetail(ProductDto productDto) {
+        CustomerDetailService uDetailService = CurrentUserUtils.getCurrentUserUtils();
+
+        ProductEntity productEntity = productRepository.findById(productDto.getId())
+                .orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND.value(), "product id not found: " + productDto.getId()));
+
+        OrderEntity orderEntity = orderRepository.findById(productDto.getIdOrder())
+                .orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND.value(), "order id not found: " + productDto.getIdOrder()));
+
+//        List<ImageEntity> imageEntity = imagesRepository.getImageByProduct(idProduct);
+
+        OrderDetailEntity orderDetail = orderDetailRepository.findAllByOrderIdAndProductId(productDto.getIdOrder(), productDto.getId());
+
+        if (productEntity.getQuantity() == 0)
+            throw new BadRequestException("Sản phẩm này đã hết hàng");
+
+        if (orderDetail == null) {
+            orderDetail = new OrderDetailEntity();
+            orderDetail.setProductPrice(productEntity.getPriceNew());
+            orderDetail.setProductName(productEntity.getName());
+            orderDetail.setQuantity(1);
+            orderDetail.setTotal(orderDetail.getProductPrice() * 1);
+//            orderDetail.setImage(imageEntity.get(0).getLink());
+            orderDetail.setProductId(productDto.getId());
+
+            orderDetail.setSizeName(productDto.getSizeName());
+            orderDetail.setColorName(productDto.getColorName());
+            orderDetail.setUserId(uDetailService.getId());
+            orderDetail.setOrderId(orderEntity.getId());
+            System.out.println("vao kkk");
+        } else {
+            System.out.println("vao kk 56565k");
+            orderDetail.setQuantity(orderDetail.getQuantity() + 1);
+            if (productEntity.getQuantity() < orderDetail.getQuantity()) {
+                throw new BadRequestException("Bạn chỉ có thể mua tối đa :" + productEntity.getQuantity() + " của sản phẩm này");
+            } else {
+                orderDetail.setTotal(orderDetail.getProductPrice() * orderDetail.getQuantity());
+            }
+        }
+
+        return orderDetailRepository.save(orderDetail);
+    }
 //
 //    @Override
 //    public OrderDetailEntity updateQuantity(Long productId, Long orderId, Integer quantity) {

@@ -13,24 +13,15 @@ public class CartEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String name;
-
     private long price;
-
     private Long total;
-
     private Integer quantity;
-
     private String image;
-
     private String sizeName;
-
     private String colorName;
-
     @JsonProperty("product_id")
     private Long productId;
-
     @JsonProperty("user_id")
     private Long userId;
 

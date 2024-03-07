@@ -25,5 +25,7 @@ public class OrderDetailEntity {
     private Long userId;
     private Long productId;
     private Long orderId;
+    private String sizeName;
+    private String colorName;
 
 }

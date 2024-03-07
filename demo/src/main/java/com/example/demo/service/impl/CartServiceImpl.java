@@ -105,7 +105,7 @@ public class CartServiceImpl implements CartService {
                 cart.setUserId(uDetailService.getId());
                 cart.setName(productEntity.getName());
                 cart.setProductId(productEntity.getId());
-//                cart.setImage(imageEntity.get(0).getLink());
+                cart.setImage(productEntity.getImgList());
                 cart.setSizeName(cartDto.getSizeName());
                 cart.setColorName(cartDto.getColorName());
                 cart.setPrice(productEntity.getPriceNew());
