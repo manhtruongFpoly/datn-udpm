@@ -74,6 +74,46 @@ public class CloudinaryServiceImpl {
             }
         }
 
+        //update
+        if (productDto.getId() != null) {
+            ProductEntity productEntity = modelMapper.map(productDto, ProductEntity.class);
+            String[] imgList = productRepository.findById(productDto.getId()).get().getImgList().split(",");
+
+            StringBuilder newStr = new StringBuilder();
+            for (String img : imgList) {
+                boolean exists = false;
+                for (String delete : productDto.getListImgDelete()) {
+                    if (img.equals(delete)) {
+                        exists = true;
+                        break;
+                    }
+                }
+
+                if (!exists) {
+                    if (newStr.toString().isEmpty()) {
+                        newStr.append(img);
+                    } else {
+                        newStr.append(",").append(img);
+                    }
+                }
+            }
+
+            newStr.append(String.join(",", urls));
+            productEntity.setImgList(newStr.toString());
+            productRepository.save(productEntity);
+
+            productColorRepository.deleteAllByProductId(productEntity.getId());
+            List<ProductColor> productColors = Stream.of(productDto.getListColors().split(",")).map(str -> new ProductColor(null, productEntity.getId(), Long.valueOf(str))).collect(Collectors.toList());
+            productColorRepository.saveAll(productColors);
+
+            productSizeRepository.deleteAllByProductId(productEntity.getId());
+            List<ProductSizeEntity> productSizeEntities = Stream.of(productDto.getListSizes().split(",")).map(str -> new ProductSizeEntity(null, productEntity.getId(), Long.valueOf(str))).collect(Collectors.toList());
+            productSizeRepository.saveAll(productSizeEntities);
+
+            return urls;
+        }
+
+        //create
         ProductEntity productEntity = modelMapper.map(productDto, ProductEntity.class);
         productEntity.setImgList(String.join(",", urls));
         productRepository.save(productEntity);
