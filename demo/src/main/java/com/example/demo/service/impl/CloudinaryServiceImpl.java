@@ -2,6 +2,7 @@ package com.example.demo.service.impl;
 
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
+import com.example.demo.exception.BadRequestException;
 import com.example.demo.exception.NotFoundException;
 import com.example.demo.exception.WrongFomatException;
 import com.example.demo.model.dto.ProductDto;
@@ -99,7 +100,20 @@ public class CloudinaryServiceImpl {
             }
 
             newStr.append(String.join(",", urls));
+
             productEntity.setImgList(newStr.toString());
+            if(productDto.getDiscount() != null){
+                if(productDto.getDiscount() < 1 || productDto.getDiscount() > 100){
+                    throw new BadRequestException("Mức giảm giá từ 1% - 100%");
+                }
+
+                long priceNew = productDto.getPrice() * (100 - productDto.getDiscount()) / 100;
+                productEntity.setPriceNew(priceNew);
+            }else{
+                productEntity.setPriceNew(productDto.getPrice());
+            }
+
+            productEntity.setCreateDate(productEntity.getCreateDate());
             productRepository.save(productEntity);
 
             productColorRepository.deleteAllByProductId(productEntity.getId());
@@ -116,6 +130,16 @@ public class CloudinaryServiceImpl {
         //create
         ProductEntity productEntity = modelMapper.map(productDto, ProductEntity.class);
         productEntity.setImgList(String.join(",", urls));
+        if(productDto.getDiscount() != null){
+            if(productDto.getDiscount() < 1 || productDto.getDiscount() > 100){
+                throw new BadRequestException("Mức giảm giá từ 1% - 100%");
+            }
+
+            long priceNew = productDto.getPrice() * (100 - productDto.getDiscount()) / 100;
+            productEntity.setPriceNew(priceNew);
+        }else{
+            productEntity.setPriceNew(productDto.getPrice());
+        }
         productRepository.save(productEntity);
 
         List<ProductColor> productColors = Stream.of(productDto.getListColors().split(",")).map(str -> new ProductColor(null, productEntity.getId(), Long.valueOf(str))).collect(Collectors.toList());

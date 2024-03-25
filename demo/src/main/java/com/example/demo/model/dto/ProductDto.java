@@ -33,7 +33,7 @@ public class ProductDto {
     private LocalDateTime updateDate;
     private Integer discount;
     private String description;
-    private StatusEnum status;
+    private Integer status;
     private Long categoryId;
     private Long brandId;
     private String keySearch;

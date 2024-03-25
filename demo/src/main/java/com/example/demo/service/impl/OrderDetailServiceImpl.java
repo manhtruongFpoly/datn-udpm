@@ -59,11 +59,11 @@ public class OrderDetailServiceImpl implements OrderDetailService {
 //                .orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND.value(), "Order detail id not found: " + id));
 //    }
 //
-//    @Override
-//    public Page<OrderDetailDto> getByOrder(Long id, Integer pageSize, Integer pageNumber) {
-//        Page<OrderDetailDto> list = orderDetailRepository.findAllByOrderId(id, PageRequest.of(pageSize, pageNumber));
-//        return list;
-//    }
+    @Override
+    public Page<OrderDetailDto> getByOrder(Long id, Integer pageSize, Integer pageNumber) {
+        Page<OrderDetailDto> list = orderDetailRepository.findAllByOrderId(id, PageRequest.of(pageSize, pageNumber));
+        return list;
+    }
 //
 //    @Override
 //    public Page<OrderDetailDto> getByUserLogin(Integer pageSize, Integer pageNumber) {
@@ -156,37 +156,37 @@ public class OrderDetailServiceImpl implements OrderDetailService {
 
         return orderDetailRepository.save(orderDetail);
     }
+
+    @Override
+    public OrderDetailEntity updateQuantity(Long productId, Long orderId, Integer quantity) {
+        OrderDetailEntity orderDetailEntity = orderDetailRepository.findAllByOrderIdAndProductId(orderId, productId);
+        if (orderDetailEntity == null) {
+            throw new NotFoundException(HttpStatus.NOT_FOUND.value(), "người dùng chưa có sản phẩm id: " + productId + " trong order");
+        }
+
+        ProductEntity findQuantity = productRepository.findById(productId).get();
+        if (orderDetailEntity.getQuantity() > findQuantity.getQuantity())
+            throw new BadRequestException("Số lượng đặt hàng vươt quá số lượng trong kho");
+        else if (findQuantity.getQuantity() == 0)
+            throw new BadRequestException("Sản phẩm này đã hết hàng");
+
+        orderDetailEntity.setQuantity(quantity);
+        orderDetailEntity.setTotal(orderDetailEntity.getProductPrice() * orderDetailEntity.getQuantity());
+
+//        List<OrderDetailEntity> findAllBy = orderDetailRepository.findAllByOrderId(orderId);
 //
-//    @Override
-//    public OrderDetailEntity updateQuantity(Long productId, Long orderId, Integer quantity) {
-//        OrderDetailEntity orderDetailEntity = orderDetailRepository.findAllByOrderIdAndProductId(orderId, productId);
-//        if (orderDetailEntity == null) {
-//            throw new NotFoundException(HttpStatus.NOT_FOUND.value(), "người dùng chưa có sản phẩm id: " + productId + " trong order");
+//        for (OrderDetailEntity orderDetail : findAllBy){
+//            orderDetailEntity.setTotal(orderDetail.getPrice() * orderDetail.getQuantity());
 //        }
-//
-//        ProductEntity findQuantity = productRepository.findById(productId).get();
-//        if (orderDetailEntity.getQuantity() > findQuantity.getQuantity())
-//            throw new BadRequestException("Số lượng đặt hàng vươt quá số lượng trong kho");
-//        else if (findQuantity.getQuantity() == 0)
-//            throw new BadRequestException("Sản phẩm này đã hết hàng");
-//
-//        orderDetailEntity.setQuantity(quantity);
-//        orderDetailEntity.setTotal(orderDetailEntity.getProductPrice() * orderDetailEntity.getQuantity());
-//
-////        List<OrderDetailEntity> findAllBy = orderDetailRepository.findAllByOrderId(orderId);
-////
-////        for (OrderDetailEntity orderDetail : findAllBy){
-////            orderDetailEntity.setTotal(orderDetail.getPrice() * orderDetail.getQuantity());
-////        }
-//
-//        Optional<OrderEntity> findByOrderId = orderRepository.findById(orderId);
-//        if (findByOrderId.isPresent()) {
-//            OrderEntity orderEntity = findByOrderId.get();
-//            orderEntity.setGrandTotal(orderDetailEntity.getTotal());
-//            orderRepository.save(orderEntity);
-//        }
-//        return orderDetailRepository.save(orderDetailEntity);
-//    }
+
+        Optional<OrderEntity> findByOrderId = orderRepository.findById(orderId);
+        if (findByOrderId.isPresent()) {
+            OrderEntity orderEntity = findByOrderId.get();
+            orderEntity.setGrandTotal(orderDetailEntity.getTotal());
+            orderRepository.save(orderEntity);
+        }
+        return orderDetailRepository.save(orderDetailEntity);
+    }
 //
 //
 ////    @Override
@@ -249,12 +249,12 @@ public class OrderDetailServiceImpl implements OrderDetailService {
 //        return orderDetailRepository.save(orderDetailEntity);
 //    }
 //
-//    @Override
-//    public void delete(Long id) {
-//        OrderDetailEntity find = orderDetailRepository.findById(id)
-//                .orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND.value(), "Hóa đơn chi tiết không tồn tại"));
-//        orderDetailRepository.deleteById(find.getId());
-//    }
+    @Override
+    public void delete(Long id) {
+        OrderDetailEntity find = orderDetailRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND.value(), "Hóa đơn chi tiết không tồn tại"));
+        orderDetailRepository.deleteById(find.getId());
+    }
 //
 //    @Transactional
 //    @Override

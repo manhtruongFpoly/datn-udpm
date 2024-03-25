@@ -16,9 +16,9 @@ public interface OrderDetailService {
 //    Page<OrderDetailDto> getAllAndPage(Integer pageSize, Integer pageNumber);
 //
 //    OrderDetailEntity getById(Long id);
-//
-//    Page<OrderDetailDto> getByOrder(Long id, Integer pageSize, Integer pageNumber);
-//
+
+    Page<OrderDetailDto> getByOrder(Long id, Integer pageSize, Integer pageNumber);
+
 //    Page<OrderDetailDto> getByUserLogin(Integer pageSize, Integer pageNumber);
 //
 //    Page<OrderDetailDto> getByUser(Long userId, Integer pageSize, Integer pageNumber);
@@ -28,12 +28,10 @@ public interface OrderDetailService {
 //    OrderDetailEntity update(Long id, OrderDetailDto orderDetailDto);
 //
     OrderDetailEntity addOrderDetail(ProductDto productDto);
-//    OrderDetailEntity updateQuantity(Long productId, Long orderId, Integer quantity);
-//
-//
-//    OrderDetailEntity updateQuantitys(Long productId, Long orderId, Integer quantity);
-//
-//    void delete(Long id);
+
+    OrderDetailEntity updateQuantity(Long productId, Long orderId, Integer quantity);
+
+    void delete(Long id);
 //
 //    void deleteAllByOrderId(Long orderId);
 //

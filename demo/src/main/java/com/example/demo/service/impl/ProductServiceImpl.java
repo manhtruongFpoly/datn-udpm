@@ -82,7 +82,7 @@ public class ProductServiceImpl implements ProductService {
             ProductEntity productEntity = modelMapper.map(productDto, ProductEntity.class);
 
             productEntity.setCategoryId(categoryEntity.getId());
-            productEntity.setStatus(StatusEnum.ACTIVE);
+            productEntity.setStatus(1);
 
             if(productDto.getDiscount() < 1 || productDto.getDiscount() > 100){
                 throw new BadRequestException("Mức giảm giá từ 1% - 100%");
@@ -108,7 +108,7 @@ public class ProductServiceImpl implements ProductService {
 
         productEntity.setId(find.getId());
         productEntity.setCategoryId(findCate.getId());
-        productEntity.setStatus(StatusEnum.ACTIVE);
+        productEntity.setStatus(1);
 
         if(productDto.getDiscount() < 1 || productDto.getDiscount() > 100){
             throw new BadRequestException("Mức giảm giá từ 1% - 100%");

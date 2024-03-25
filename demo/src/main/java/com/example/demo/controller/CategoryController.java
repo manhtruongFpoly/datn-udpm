@@ -17,7 +17,7 @@ public class CategoryController {
 
 
     //todo:Danh sách category theo status
-    @GetMapping("/list-status/{status}")
+    @GetMapping("/list-status")
     public ResponseEntity<?> listCategory(
     ) {
         return ResponseEntity.ok(DefaultResponse.success(categoryService.listCategory()));

@@ -12,6 +12,7 @@ import com.example.demo.model.entity.OrderEntity;
 import com.example.demo.model.entity.ProductEntity;
 import com.example.demo.payload.request.CreateDeliveryOrder;
 import com.example.demo.payload.request.CreateOrderAtTheCounter;
+import com.example.demo.payload.request.OrderDetailResponse;
 import com.example.demo.repository.CartRepository;
 import com.example.demo.repository.OrderDetailRepository;
 import com.example.demo.repository.OrderRepository;
@@ -63,7 +64,18 @@ public class OrderServiceServiceImpl implements OrderService {
 
             order.setUserId(uDetailService.getId());
             order.setShipping(req.getShipping());
-            order.setStatus(OrderStatusEnum.CHOXACNHAN);
+
+            if(req.getVnp_ResponseCode() == null){
+                order.setStatus(OrderStatusEnum.CHOXACNHAN);
+            }else{
+                if(req.getVnp_ResponseCode().equals("00")){
+                    order.setStatus(OrderStatusEnum.DATHANHTOAN);
+                }else{
+                    order.setStatus(OrderStatusEnum.CHOXACNHAN);
+                }
+            }
+
+
             order.setMahd("order_class" +
                     Calendar.getInstance().get(Calendar.YEAR) +
                     (Calendar.getInstance().get(Calendar.MONTH) + 1) +
@@ -107,6 +119,8 @@ public class OrderServiceServiceImpl implements OrderService {
             orderDetail.setProductId(cartItem.getProductId());
             orderDetail.setOrderId(order.getId());
             orderDetail.setUserId(uDetailService.getId());
+            orderDetail.setColorName(cartItem.getColorName());
+            orderDetail.setSizeName(cartItem.getSizeName());
 
             orderDetailRepository.save(orderDetail);
             ProductEntity productEntity = productService.getOne(cartItem.getProductId());
@@ -133,7 +147,7 @@ public class OrderServiceServiceImpl implements OrderService {
         Optional<OrderEntity> findByOrderId = orderRepository.findById(orderId);
         if (findByOrderId.isPresent()) {
             OrderEntity order = findByOrderId.get();
-            if (order.getStatus() == OrderStatusEnum.CHOXACNHAN) {
+            if (order.getStatus() == OrderStatusEnum.CHOXACNHAN || order.getStatus() == OrderStatusEnum.DAHOANTHANH) {
                 order.setStatus(OrderStatusEnum.DANGXULY);
 //                order.setStaffId(uDetailService.getId());
                 order.setGrandTotal((long) (order.getGrandTotal() + order.getShipping()));
@@ -149,10 +163,8 @@ public class OrderServiceServiceImpl implements OrderService {
         Optional<OrderEntity> findByOrderId = orderRepository.findById(orderId);
         if (findByOrderId.isPresent()) {
             OrderEntity order = findByOrderId.get();
-            if (order.getStatus() == OrderStatusEnum.DANGXULY) {
-                order.setStatus(OrderStatusEnum.DANGVANCHUYEN);
-                return orderRepository.save(order);
-            }
+            order.setStatus(OrderStatusEnum.DANGVANCHUYEN);
+            return orderRepository.save(order);
         }
         return findByOrderId.orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND.value(), "Order id not found: " + orderId));
     }
@@ -476,6 +488,16 @@ public class OrderServiceServiceImpl implements OrderService {
         return orderRepository.findAllByPaymentStatusEquals(PaymentStatus.DANGSULY);
     }
 
+    @Override
+    public OrderDetailResponse sumTotalOrderDetail(Long idOrder) {
+
+        OrderEntity findByOrder = orderRepository.findById(idOrder).orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND.value(), "Order id not found: " + idOrder));
+
+        OrderDetailResponse response = new OrderDetailResponse();
+        response.setTotalAmount(orderDetailRepository.sumPrice(idOrder));
+        response.setShipping(findByOrder.getShipping());
+        return response;
+    }
 
 
 }

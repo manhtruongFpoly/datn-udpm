@@ -86,7 +86,8 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                 "\t\t),\n" +
                 "\t']'\n" +
                 ") AS listColors,\n" +
-                "    p.img_list\n" +
+                "    p.img_list,\n" +
+                "    p.status\n" +
                 "from products p \n" +
                 "join product_sizes ps on p.id = ps.product_id\n" +
                 "join sizes s on s.id = ps.size_id\n" +
@@ -126,6 +127,7 @@ public class ProductCustomRepositoryImpl implements ProductCustomRepository {
                 productDto1.setListSizes(DataUtil.safeToString(obj[12]));
                 productDto1.setListColors(DataUtil.safeToString(obj[13]));
                 productDto1.setImgList(DataUtil.safeToString(obj[14]));
+                productDto1.setStatus(DataUtil.safeToInt(obj[15]));
                 productDtoList.add(productDto1);
             }
         }

@@ -55,7 +55,6 @@ public class OrderEntity {
     private LocalDateTime updateDate;
 
     private PaymentStatus paymentStatus;
-
     private Integer shipping;
     private String description;
     private String reason;

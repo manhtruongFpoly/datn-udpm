@@ -10,6 +10,6 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ProductColorRepository extends JpaRepository<ProductColor,Long> {
     @Modifying
-    @Query(nativeQuery = true, value = "delete from Product_color where product_id = :id")
+    @Query(nativeQuery = true, value = "delete from product_color where product_id = :id")
     void deleteAllByProductId(@Param("id") Long id);
 }

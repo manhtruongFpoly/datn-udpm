@@ -34,4 +34,6 @@ public class CreateOrderReq {
 
     private Long grandTotal;
 
+    private String vnp_ResponseCode;
+
 }

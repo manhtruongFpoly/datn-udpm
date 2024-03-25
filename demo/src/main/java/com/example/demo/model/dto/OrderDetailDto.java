@@ -5,16 +5,15 @@ import lombok.*;
 
 @Setter
 @Getter
-@AllArgsConstructor
 @NoArgsConstructor
 @Data
 public class OrderDetailDto {
 
     private Long id;
 
-    private Long price;
+    private Long productPrice;
 
-    private String name;
+    private String productName;
 
     private Integer quantity;
 
@@ -29,4 +28,28 @@ public class OrderDetailDto {
     private Long userId;
 
     private String username;
+
+    private String sizeName;
+
+    private String colorName;
+
+    public OrderDetailDto(Long id, Long productPrice,
+                          String productName, Integer quantity,
+                          Long total, String image, Long productId,
+                          Long orderId, Long userId, String username,
+                          String sizeName, String colorName
+    ) {
+        this.id = id;
+        this.productPrice = productPrice;
+        this.productName = productName;
+        this.quantity = quantity;
+        this.total = total;
+        this.image = image;
+        this.productId = productId;
+        this.orderId = orderId;
+        this.userId = userId;
+        this.username = username;
+        this.sizeName = sizeName;
+        this.colorName = colorName;
+    }
 }

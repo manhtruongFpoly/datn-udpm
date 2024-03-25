@@ -9,7 +9,7 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-@Table(name = "Product_color")
+@Table(name = "product_color")
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProductColor {
