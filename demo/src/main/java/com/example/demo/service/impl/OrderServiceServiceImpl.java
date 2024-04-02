@@ -24,6 +24,7 @@ import com.example.demo.service.ProductService;
 import com.example.demo.until.CurrentUserUtils;
 import com.sun.xml.internal.messaging.saaj.packaging.mime.MessagingException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -497,6 +498,33 @@ public class OrderServiceServiceImpl implements OrderService {
         response.setTotalAmount(orderDetailRepository.sumPrice(idOrder));
         response.setShipping(findByOrder.getShipping());
         return response;
+    }
+
+
+    @Override
+    public List<OrderEntity> listOrderStatusAndUserId(OrderStatusEnum status) {
+        CustomerDetailService detailService = CurrentUserUtils.getCurrentUserUtils();
+        return orderRepository.findAllByStatusEqualsAndUserId(status, detailService.getId());
+    }
+
+    @Override
+    public void reOrder(Long orderId) {
+        CustomerDetailService userUtils = CurrentUserUtils.getCurrentUserUtils();
+
+        List<OrderDetailEntity> findByIdOrder = orderDetailRepository.findAllByOrderIdAndUserId(orderId, userUtils.getId());
+
+        for (OrderDetailEntity order : findByIdOrder) {
+//          cartRepository.deleteById(order.getProductId());
+            CartEntity cart = new CartEntity();
+            BeanUtils.copyProperties(order, cart);
+
+            ProductEntity productEntity = productRepository.findById(cart.getProductId())
+                    .orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND.value(), "product id not found: " + cart.getProductId()));
+            if (productEntity.getQuantity() <= 0) {
+                throw new BadRequestException("Sản phẩm này đã hết hàng, vui lòng chờ cửa hàng nhập thêm");
+            }
+            cartRepository.save(cart);
+        }
     }
 
 

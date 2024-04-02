@@ -202,5 +202,24 @@ public class OrderController {
     }
 
 
+    //todo: Danh sách hóa đơn theo status và account
+    @GetMapping("/list-status-account/{status}")
+    public ResponseEntity<?> listStatusAndAccount(
+            @PathVariable("status") OrderStatusEnum status
+    ) {
+        return ResponseEntity.ok(DefaultResponse.success(orderService.listOrderStatusAndUserId(status)));
+    }
+
+
+    //todo: Đặt lại đơn hàng đã mua
+    @GetMapping("/re-order/{id}")
+    public ResponseEntity<?> reOrder(
+            @PathVariable("id") Long id
+    ) {
+        orderService.reOrder(id);
+        return ResponseEntity.ok(DefaultResponse.success("Đặt lại đơn hàng thành công"));
+    }
+
+
 
 }

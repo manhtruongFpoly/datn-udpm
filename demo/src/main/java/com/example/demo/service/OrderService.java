@@ -59,4 +59,8 @@ public interface OrderService {
     List<OrderEntity> listStatusPayment();
 
     OrderDetailResponse sumTotalOrderDetail(Long idOrder);
+
+    List<OrderEntity> listOrderStatusAndUserId(OrderStatusEnum status);
+
+    void reOrder(Long orderId);
 }
