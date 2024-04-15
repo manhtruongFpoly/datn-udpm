@@ -88,6 +88,21 @@ public class OrderDetailController {
         return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
+    @PutMapping("updateQuantity/{productId}/order/{orderId}")
+    public ResponseEntity updateQuantity(
+            @PathVariable("productId") Long productId,
+            @PathVariable("orderId") Long orderId,
+            @RequestParam("quantity") Integer quantity
+    ) {
+        SampleResponse response = SampleResponse.builder()
+                .success(true)
+                .message("update")
+                .data(orderDetailService.updateQuantitys(productId, orderId, quantity))
+                .build();
+
+        return ResponseEntity.status(HttpStatus.OK).body(response);
+    }
+
     @DeleteMapping("delete/{orderDetailId}")
     public ResponseEntity<?> deleteOrderDetail(@PathVariable("orderDetailId") Long id) {
         SampleResponse response = SampleResponse.builder()
