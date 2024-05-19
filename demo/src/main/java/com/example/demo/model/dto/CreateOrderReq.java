@@ -1,15 +1,13 @@
 package com.example.demo.model.dto;
 
-import com.example.demo.contants.RegexContants;
+import com.example.demo.model.entity.CartEntity;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.validator.constraints.Length;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Pattern;
+import java.util.List;
 
 @Getter
 @Setter
@@ -35,5 +33,9 @@ public class CreateOrderReq {
     private Long grandTotal;
 
     private String vnp_ResponseCode;
+
+    private List<CartEntity> lstCart;
+
+    private Long userId;
 
 }

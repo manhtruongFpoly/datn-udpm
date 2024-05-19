@@ -57,8 +57,7 @@ public class OrderDetailServiceImpl implements OrderDetailService {
 //
     @Override
     public Page<OrderDetailDto> getByOrder(Long id, Integer pageSize, Integer pageNumber) {
-        Page<OrderDetailDto> list = orderDetailRepository.findAllByOrderId(id, PageRequest.of(pageSize, pageNumber));
-        return list;
+        return orderDetailRepository.findAllByOrderId(id, PageRequest.of(pageSize, pageNumber));
     }
 //
 //    @Override

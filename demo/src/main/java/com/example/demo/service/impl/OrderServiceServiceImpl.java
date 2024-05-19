@@ -6,17 +6,11 @@ import com.example.demo.contants.PaymentStatus;
 import com.example.demo.exception.BadRequestException;
 import com.example.demo.exception.NotFoundException;
 import com.example.demo.model.dto.CreateOrderReq;
-import com.example.demo.model.entity.CartEntity;
-import com.example.demo.model.entity.OrderDetailEntity;
-import com.example.demo.model.entity.OrderEntity;
-import com.example.demo.model.entity.ProductEntity;
+import com.example.demo.model.entity.*;
 import com.example.demo.payload.request.CreateDeliveryOrder;
 import com.example.demo.payload.request.CreateOrderAtTheCounter;
 import com.example.demo.payload.request.OrderDetailResponse;
-import com.example.demo.repository.CartRepository;
-import com.example.demo.repository.OrderDetailRepository;
-import com.example.demo.repository.OrderRepository;
-import com.example.demo.repository.ProductRepository;
+import com.example.demo.repository.*;
 import com.example.demo.security.CustomerDetailService;
 import com.example.demo.service.OrderDetailService;
 import com.example.demo.service.OrderService;
@@ -26,13 +20,11 @@ import com.sun.xml.internal.messaging.saaj.packaging.mime.MessagingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -46,6 +38,8 @@ public class OrderServiceServiceImpl implements OrderService {
     private final OrderDetailRepository orderDetailRepository;
     private final OrderDetailService orderDetailService;
     private final ProductRepository productRepository;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public List<OrderEntity> getAll() {
@@ -132,16 +126,99 @@ public class OrderServiceServiceImpl implements OrderService {
                 throw new BadRequestException("Sản phẩm này đã hết hàng");
 
 
-            int quantityOrderDetail = orderDetail.getQuantity();
-            int quantityProduct = productEntity.getQuantity();
-
-            int updateQuantity = quantityProduct - quantityOrderDetail;
-            productService.updateQuantity(productEntity.getId(), updateQuantity);
+//            int quantityOrderDetail = orderDetail.getQuantity();
+//            int quantityProduct = productEntity.getQuantity();
+//
+//            int updateQuantity = quantityProduct - quantityOrderDetail;
+//            productService.updateQuantity(productEntity.getId(), updateQuantity);
             // xoa cart
             cartRepository.deleteById(cartItem.getId());
         }
         return order;
     }
+
+    @Override
+    @Transactional
+    public OrderEntity checkoutOrderNotLogged(CreateOrderReq req) throws MessagingException {
+
+        //tạo user mới
+        Optional<UserEntity> findByUsername = this.userRepository.findById(req.getUserId());
+        UserEntity userEntity = new UserEntity();
+        if(!findByUsername.isPresent()){
+            userEntity.setUsername(String.valueOf(req.getUserId()));
+            userEntity.setPassword(passwordEncoder.encode("123456aA@"));
+            userEntity.setStatus(1);
+            this.userRepository.save(userEntity);
+        }else{
+            userEntity.setId(findByUsername.get().getId());
+        }
+
+        OrderEntity order = new OrderEntity();
+
+        if(req.getVnp_ResponseCode() == null){
+            order.setStatus(OrderStatusEnum.CHOXACNHAN);
+        }else{
+            if(req.getVnp_ResponseCode().equals("00")){
+                order.setStatus(OrderStatusEnum.DATHANHTOAN);
+            }else{
+                order.setStatus(OrderStatusEnum.CHOXACNHAN);
+            }
+        }
+        order.setUserId(userEntity.getId());
+        order.setShipping(req.getShipping());
+        order.setMahd("order_class" +
+                Calendar.getInstance().get(Calendar.YEAR) +
+                (Calendar.getInstance().get(Calendar.MONTH) + 1) +
+                Calendar.getInstance().get(Calendar.DATE) +
+                "_" +
+                Calendar.getInstance().get(Calendar.HOUR) +
+                Calendar.getInstance().get(Calendar.MINUTE) +
+                Calendar.getInstance().get(Calendar.MILLISECOND));
+        order.setFullname(req.getFullname());
+        order.setPhone(req.getPhone());
+        order.setDescription(req.getDescription());
+        order.setPaymentId(req.getPaymentId());
+        order.setAddress(req.getAddress());
+        order.setPaymentId(req.getPaymentId());
+        order.setOrderStatus(OrderStatus.DONGIAO);
+        order.setProvince(req.getProvince());
+        order.setDistrict(req.getDistrict());
+        order.setWard(req.getWard());
+        order.setGrandTotal(req.getGrandTotal());
+
+        orderRepository.save(order);
+
+//        Collection<CartEntity> listCartItem = cartService.getAllByUser(uDetailService.getId());
+        Collection<CartEntity> listCartItem = req.getLstCart();
+        for (CartEntity cartItem : listCartItem) {
+            OrderDetailEntity orderDetail = new OrderDetailEntity();
+
+            orderDetail.setProductPrice(cartItem.getPrice());
+            orderDetail.setQuantity(cartItem.getQuantity());
+
+            long total = orderDetail.getProductPrice() * orderDetail.getQuantity();
+            orderDetail.setTotal(total);
+
+            orderDetail.setProductName(cartItem.getName());
+            orderDetail.setImage(cartItem.getImage());
+            orderDetail.setProductId(cartItem.getProductId());
+            orderDetail.setOrderId(order.getId());
+            orderDetail.setColorName(cartItem.getColorName());
+            orderDetail.setSizeName(cartItem.getSizeName());
+            orderDetail.setUserId(userEntity.getId());
+
+            orderDetailRepository.save(orderDetail);
+            ProductEntity productEntity = productService.getOne(cartItem.getProductId());
+
+            if (cartItem.getQuantity() > productEntity.getQuantity())
+                throw new BadRequestException("Số lượng đặt hàng vươt quá số lượng trong kho");
+            else if (productEntity.getQuantity() == 0)
+                throw new BadRequestException("Sản phẩm này đã hết hàng");
+        }
+        return order;
+    }
+
+
     @Override
     public OrderEntity orderConfirmed(Long orderId) {
         CustomerDetailService uDetailService = CurrentUserUtils.getCurrentUserUtils();
@@ -165,6 +242,19 @@ public class OrderServiceServiceImpl implements OrderService {
         if (findByOrderId.isPresent()) {
             OrderEntity order = findByOrderId.get();
             order.setStatus(OrderStatusEnum.DANGVANCHUYEN);
+
+            List<OrderDetailEntity> list = orderDetailRepository.findAllByOrderId(order.getId());
+
+            for (OrderDetailEntity orderDetailEntity : list) {
+
+                ProductEntity productEntity = productService.getOne(orderDetailEntity.getProductId());
+                int quantityOrderDetail = orderDetailEntity.getQuantity();
+                int quantityProduct = productEntity.getQuantity();
+
+                int updateQuantity = quantityProduct - quantityOrderDetail;
+                productService.updateQuantity(productEntity.getId(), updateQuantity);
+            }
+
             return orderRepository.save(order);
         }
         return findByOrderId.orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND.value(), "Order id not found: " + orderId));
@@ -186,15 +276,9 @@ public class OrderServiceServiceImpl implements OrderService {
 
     @Override
     public OrderEntity cancelled(Long orderId, String reason) {
-        CustomerDetailService uDetailService = CurrentUserUtils.getCurrentUserUtils();
         Optional<OrderEntity> findByOrderId = orderRepository.findById(orderId);
         if (findByOrderId.isPresent()) {
             OrderEntity order = findByOrderId.get();
-
-//            if (order.getAccountId() != uDetailService.getId()) {
-//                throw new BadRequestException("Bạn không phải là chủ đơn hàng");
-//            }
-
             if (order.getStatus() == OrderStatusEnum.DANGVANCHUYEN) {
                 throw new BadRequestException("Đơn hàng của bạn đang vận chuyển không thể hủy đơn hàng");
             } else if (order.getStatus() == OrderStatusEnum.DAGIAO) {
@@ -204,18 +288,18 @@ public class OrderServiceServiceImpl implements OrderService {
                 order.setReason(reason);
 //                order.setPaymentStatus(PaymentStatus.HUY);
 
-                Collection<OrderDetailEntity> listOrderDetail = orderDetailRepository.findAllByUserIdAndOrderId(uDetailService.getId(),orderId);
-                System.out.println(listOrderDetail + "abc");
-                for (OrderDetailEntity listOrder : listOrderDetail) {
-
-                    ProductEntity productEntity = productService.getOne(listOrder.getProductId());
-
-                    int quantityOrder = listOrder.getQuantity();
-                    int quantityProduct = productEntity.getQuantity();
-
-                    int updateQuantity = quantityProduct + quantityOrder;
-                    productService.updateQuantity(productEntity.getId(), updateQuantity);
-                }
+//                Collection<OrderDetailEntity> listOrderDetail = orderDetailRepository.findAllByUserIdAndOrderId(uDetailService.getId(),orderId);
+//                System.out.println(listOrderDetail + "abc");
+//                for (OrderDetailEntity listOrder : listOrderDetail) {
+//
+//                    ProductEntity productEntity = productService.getOne(listOrder.getProductId());
+//
+//                    int quantityOrder = listOrder.getQuantity();
+//                    int quantityProduct = productEntity.getQuantity();
+//
+//                    int updateQuantity = quantityProduct + quantityOrder;
+//                    productService.updateQuantity(productEntity.getId(), updateQuantity);
+//                }
                 return orderRepository.save(order);
             }
         }
@@ -235,9 +319,13 @@ public class OrderServiceServiceImpl implements OrderService {
     }
 
     @Override
-    public long countOrderStatus(int status) {
-        CustomerDetailService detailService = CurrentUserUtils.getCurrentUserUtils();
-        return orderRepository.countOrderStatus(status, detailService.getId());
+    public long countOrderStatus(int status,Long userId) {
+        if(!Objects.isNull(userId)){
+            return orderRepository.countOrderStatus(status, userId);
+        }else{
+            CustomerDetailService detailService = CurrentUserUtils.getCurrentUserUtils();
+            return orderRepository.countOrderStatus(status, detailService.getId());
+        }
     }
 
     @Override
@@ -502,19 +590,27 @@ public class OrderServiceServiceImpl implements OrderService {
 
 
     @Override
-    public List<OrderEntity> listOrderStatusAndUserId(OrderStatusEnum status) {
-        CustomerDetailService detailService = CurrentUserUtils.getCurrentUserUtils();
-        return orderRepository.findAllByStatusEqualsAndUserId(status, detailService.getId());
+    public List<OrderEntity> listOrderStatusAndUserId(OrderStatusEnum status,Long userId) {
+        if(!Objects.isNull(userId)){
+            return orderRepository.findAllByStatusEqualsAndUserId(status, userId);
+        }else{
+            CustomerDetailService detailService = CurrentUserUtils.getCurrentUserUtils();
+            return orderRepository.findAllByStatusEqualsAndUserId(status, detailService.getId());
+        }
     }
 
     @Override
-    public void reOrder(Long orderId) {
-        CustomerDetailService userUtils = CurrentUserUtils.getCurrentUserUtils();
+    public void reOrder(Long orderId,Long userId) {
+        Long reUserId = 0L;
+        if(!Objects.isNull(userId)){
+            reUserId = userId;
+        }else{
+            CustomerDetailService userUtils = CurrentUserUtils.getCurrentUserUtils();
+            reUserId = userUtils.getId();
+        }
 
-        List<OrderDetailEntity> findByIdOrder = orderDetailRepository.findAllByOrderIdAndUserId(orderId, userUtils.getId());
-
+        List<OrderDetailEntity> findByIdOrder = orderDetailRepository.findAllByOrderIdAndUserId(orderId, reUserId);
         for (OrderDetailEntity order : findByIdOrder) {
-//          cartRepository.deleteById(order.getProductId());
             CartEntity cart = new CartEntity();
             BeanUtils.copyProperties(order, cart);
 
@@ -525,6 +621,32 @@ public class OrderServiceServiceImpl implements OrderService {
             }
             cartRepository.save(cart);
         }
+    }
+
+    @Override
+    public OrderEntity refunds(Long orderId){
+//        CustomerDetailService uDetailService = CurrentUserUtils.getCurrentUserUtils();
+        Optional<OrderEntity> findByOrderId = orderRepository.findById(orderId);
+        if (findByOrderId.isPresent()) {
+            OrderEntity order = findByOrderId.get();
+            if (order.getStatus() == OrderStatusEnum.DAHOANTHANH || order.getStatus() == OrderStatusEnum.DAGIAO) {
+                order.setStatus(OrderStatusEnum.HOANTRA);
+
+                Collection<OrderDetailEntity> listOrderDetail = orderDetailRepository.findAllByUserIdAndOrderId(order.getUserId(),orderId);
+                for (OrderDetailEntity listOrder : listOrderDetail) {
+
+                    ProductEntity productEntity = productService.getOne(listOrder.getProductId());
+
+                    int quantityOrder = listOrder.getQuantity();
+                    int quantityProduct = productEntity.getQuantity();
+
+                    int updateQuantity = quantityProduct + quantityOrder;
+                    productService.updateQuantity(productEntity.getId(), updateQuantity);
+                }
+                return orderRepository.save(order);
+            }
+        }
+        return findByOrderId.orElseThrow(() -> new NotFoundException(HttpStatus.NOT_FOUND.value(), "Order id not found: " + orderId));
     }
 
 

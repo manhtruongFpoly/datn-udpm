@@ -112,5 +112,4 @@ public interface OrderDetailRepository extends JpaRepository<OrderDetailEntity,L
     @Query("SELECT SUM(orderDetail.total) FROM OrderDetailEntity orderDetail where orderDetail.orderId=?1")
     Long totalPrice(Long orderId);
 
-
 }

@@ -8,6 +8,7 @@ import com.example.demo.payload.request.CreateDeliveryOrder;
 import com.example.demo.payload.request.CreateOrderAtTheCounter;
 import com.example.demo.payload.request.OrderDetailResponse;
 import com.sun.xml.internal.messaging.saaj.packaging.mime.MessagingException;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -15,6 +16,9 @@ public interface OrderService {
     List<OrderEntity> getAll();
 
     OrderEntity checkoutOrder(CreateOrderReq req) throws MessagingException;
+
+    @Transactional
+    OrderEntity checkoutOrderNotLogged(CreateOrderReq req) throws MessagingException;
 
     OrderEntity orderConfirmed(Long orderId);
 
@@ -30,7 +34,7 @@ public interface OrderService {
 
     OrderStatusEnum[] status();
 
-    long countOrderStatus(int status);
+    long countOrderStatus(int status,Long userId);
 
     OrderEntity findByIdOrder(Long id);
 
@@ -60,7 +64,9 @@ public interface OrderService {
 
     OrderDetailResponse sumTotalOrderDetail(Long idOrder);
 
-    List<OrderEntity> listOrderStatusAndUserId(OrderStatusEnum status);
+    List<OrderEntity> listOrderStatusAndUserId(OrderStatusEnum status,Long userId);
 
-    void reOrder(Long orderId);
+    void reOrder(Long orderId,Long userId);
+
+    OrderEntity refunds(Long orderId);
 }

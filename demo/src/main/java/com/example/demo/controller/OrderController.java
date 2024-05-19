@@ -31,13 +31,16 @@ public class OrderController {
     }
 
 
-
     //todo:Đặt hàng phía user
     @PostMapping("/check-out")
     public ResponseEntity<?> checkoutOrder(@Valid @RequestBody CreateOrderReq order) throws MessagingException {
         return ResponseEntity.ok(DefaultResponse.success(orderService.checkoutOrder(order)));
     }
 
+    @PostMapping("/check-out-not-logger")
+    public ResponseEntity<?> checkoutOrderNotLogged(@Valid @RequestBody CreateOrderReq order) throws MessagingException {
+        return ResponseEntity.ok(DefaultResponse.success(orderService.checkoutOrderNotLogged(order)));
+    }
 
     //todo:Xác nhận đơn đặt hàng
     @GetMapping("/order-confirm/{id}")
@@ -89,11 +92,12 @@ public class OrderController {
     }
 
     //todo:Đếm số lượng đơn hàng theo trạng thái và tài khoản người dùng
-    @GetMapping("/count-order/{status}")
+    @GetMapping("/count-order/{status}/{userId}")
     public ResponseEntity<?> countOrder(
-            @PathVariable("status") int status
+            @PathVariable("status") int status,
+            @PathVariable("userId") Long userId
     ) {
-        return ResponseEntity.ok(DefaultResponse.success(orderService.countOrderStatus(status)));
+        return ResponseEntity.ok(DefaultResponse.success(orderService.countOrderStatus(status,userId)));
     }
 
     //todo:Lấy ra order theo id
@@ -205,19 +209,29 @@ public class OrderController {
     //todo: Danh sách hóa đơn theo status và account
     @GetMapping("/list-status-account/{status}")
     public ResponseEntity<?> listStatusAndAccount(
-            @PathVariable("status") OrderStatusEnum status
+            @PathVariable("status") OrderStatusEnum status,
+            @RequestParam(value = "userId",required = false) Long userId
     ) {
-        return ResponseEntity.ok(DefaultResponse.success(orderService.listOrderStatusAndUserId(status)));
+        return ResponseEntity.ok(DefaultResponse.success(orderService.listOrderStatusAndUserId(status,userId)));
     }
 
 
     //todo: Đặt lại đơn hàng đã mua
-    @GetMapping("/re-order/{id}")
+    @GetMapping("/re-order/{id}/{userId}")
     public ResponseEntity<?> reOrder(
-            @PathVariable("id") Long id
+            @PathVariable("id") Long id,
+            @PathVariable(value = "userId",required = false) Long userId
     ) {
-        orderService.reOrder(id);
+        orderService.reOrder(id,userId);
         return ResponseEntity.ok(DefaultResponse.success("Đặt lại đơn hàng thành công"));
+    }
+
+
+    @GetMapping("/refunds/{id}")
+    public ResponseEntity<?> refunds(
+            @PathVariable("id") Long orderId
+    ) {
+        return ResponseEntity.ok(DefaultResponse.success(orderService.refunds(orderId)));
     }
 
 

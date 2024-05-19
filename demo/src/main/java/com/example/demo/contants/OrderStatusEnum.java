@@ -7,14 +7,14 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum OrderStatusEnum {
 
-
     CHOXACNHAN(0),
     DANGXULY(1),
     DANGVANCHUYEN(2),
     DAGIAO(3),
     DAHUY(4),
     DAHOANTHANH(5),
-    DATHANHTOAN(6)
+    DATHANHTOAN(6),
+    HOANTRA(7)
     ;
 
     private final int value;
